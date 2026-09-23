@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+        id="cordova-plugin-outsystems-custom-domain"
+        version="1.0.0">
+
+    <name>OutSystems Custom Domain</name>
+    <description>
+        Build-time hook that rewrites an OutSystems ODC/Cordova mobile app's
+        built-in domain (e.g. *.outsystems.app / *.outsystemscloud.com) to a
+        custom domain before the native platform projects are generated.
+    </description>
+    <license>Apache-2.0</license>
+    <keywords>cordova,ecosystem:cordova,outsystems,odc,mabs,custom-domain,build-hook</keywords>
+
+    <engines>
+        <engine name="cordova" version=">=7.0.0" />
+    </engines>
+
+    <!--
+        Plugin variables. Set them via:
+          cordova plugin add cordova-plugin-outsystems-custom-domain \
+            --variable CUSTOM_DOMAIN=myapp.example.com
+
+        or, in OutSystems ODC, via the module's Extensibility Configuration
+        JSON (see README.md).
+    -->
+    <preference name="CUSTOM_DOMAIN" default="" />
+    <preference name="BUILTIN_DOMAIN" default="" />
+    <preference name="KEEP_BUILTIN_DOMAIN_ACCESS" default="true" />
+    <preference name="PATCH_WWW_FILES" default="true" />
+
+    <!--
+        before_prepare runs before Cordova copies the root config.xml into
+        platforms/android and platforms/ios, so editing it here propagates
+        to both native projects (including the whitelist -> network config
+        / ATS translation Cordova does automatically during prepare).
+    -->
+    <hook type="before_prepare" src="hooks/setCustomDomain.js" />
+</plugin>
