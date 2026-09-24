@@ -24,8 +24,8 @@
         or, in OutSystems ODC, via the module's Extensibility Configuration
         JSON (see README.md).
     -->
-    <preference name="CUSTOM_DOMAIN" default="" />
-    <preference name="BUILTIN_DOMAIN" default="" />
+    <preference name="CUSTOM_DOMAIN" default="dev-mijn-hollandzorg.com" />
+    <preference name="BUILTIN_DOMAIN" default="salland-dev.outsystems.app" />
     <preference name="KEEP_BUILTIN_DOMAIN_ACCESS" default="true" />
     <preference name="PATCH_WWW_FILES" default="true" />
 
