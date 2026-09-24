@@ -1,34 +1,7 @@
-#!/usr/bin/env node
-/**
- * cordova-plugin-outsystems-custom-domain
- * hooks/setCustomDomain.js
- *
- * before_prepare hook.
- *
- * Rewrites the OutSystems ODC built-in domain (e.g. *.outsystems.app,
- * *.outsystemscloud.com) that a Cordova-based mobile app package points at,
- * replacing it with a custom domain, before Cordova copies config.xml into
- * the native platform projects.
- *
- * Configure via plugin variables (see README.md):
- *   CUSTOM_DOMAIN               (required)  e.g. "myapp.example.com"
- *   BUILTIN_DOMAIN               (optional)  overrides auto-detection
- *   KEEP_BUILTIN_DOMAIN_ACCESS   (optional)  "true" | "false", default "true"
- *   PATCH_WWW_FILES              (optional)  "true" | "false", default "true"
- *
- * No third-party npm dependencies - only Node builtins - so it needs no
- * `npm install` step inside a MABS build container.
- */
-
-'use strict';
-
 const fs = require('fs');
 const path = require('path');
 
 const PLUGIN_ID = 'cordova-plugin-outsystems-custom-domain';
-
-// Known OutSystems ODC built-in domain shapes. Used only for
-// auto-detection when BUILTIN_DOMAIN isn't set explicitly.
 const BUILTIN_DOMAIN_PATTERNS = [
   /^[a-z0-9-]+\.outsystems\.app$/i,
   /^[a-z0-9-]+\.outsystemscloud\.com$/i
@@ -38,9 +11,6 @@ const WWW_EXTENSIONS = ['.html', '.htm', '.js', '.json', '.xml'];
 const SKIP_DIRS = new Set(['node_modules', 'platforms', 'plugins', '.git']);
 
 function fail(message) {
-  // MABS recognizes this prefix and surfaces it as a readable build error
-  // instead of a generic hook failure (see OutSystems docs: "Using Cordova
-  // Plugins" - custom error messages for build-step hooks).
   console.error('OUTSYSTEMS_PLUGIN_ERROR: ' + message);
   throw new Error(message);
 }
@@ -114,8 +84,6 @@ function ensureAccessAndNavigation(configXmlContent, domain) {
 
   if (insertions.length === 0) return updated;
 
-  // Insert right after the <content .../> element; fall back to just
-  // before </widget> if that anchor isn't found.
   const anchorRe = /(<content\s+[^>]*\/>\s*)/i;
   if (anchorRe.test(updated)) {
     updated = updated.replace(anchorRe, `$1\n${insertions.join('\n')}\n`);
