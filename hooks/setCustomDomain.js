@@ -2,6 +2,8 @@ const fs = require('fs');
 const path = require('path');
 
 const PLUGIN_ID = 'cordova-plugin-outsystems-custom-domain';
+
+
 const BUILTIN_DOMAIN_PATTERNS = [
   /^[a-z0-9-]+\.outsystems\.app$/i,
   /^[a-z0-9-]+\.outsystemscloud\.com$/i
@@ -11,6 +13,7 @@ const WWW_EXTENSIONS = ['.html', '.htm', '.js', '.json', '.xml'];
 const SKIP_DIRS = new Set(['node_modules', 'platforms', 'plugins', '.git']);
 
 function fail(message) {
+
   console.error('OUTSYSTEMS_PLUGIN_ERROR: ' + message);
   throw new Error(message);
 }
@@ -23,10 +26,35 @@ function readConfigXml(projectRoot) {
   return { configPath, content: fs.readFileSync(configPath, 'utf8') };
 }
 
-function getPreference(configXmlContent, name) {
+function getGlobalPreference(configXmlContent, name) {
   const re = new RegExp(`<preference\\s+name="${name}"\\s+value="([^"]*)"\\s*/?>`, 'i');
   const match = configXmlContent.match(re);
   return match ? match[1] : undefined;
+}
+
+function getPluginBlock(configXmlContent, pluginId) {
+  const idEsc = escapeRegExp(pluginId);
+  const openTagRe = new RegExp(`<plugin\\s+[^>]*name="${idEsc}"[^>]*?(/?)>`, 'i');
+  const tagMatch = configXmlContent.match(openTagRe);
+  if (!tagMatch) return undefined; // this plugin isn't referenced in config.xml at all
+  if (tagMatch[1] === '/') return ''; // self-closed <plugin .../> - no variables set
+
+  const startIdx = tagMatch.index + tagMatch[0].length;
+  const closeIdx = configXmlContent.indexOf('</plugin>', startIdx);
+  return closeIdx === -1 ? '' : configXmlContent.slice(startIdx, closeIdx);
+}
+
+function getVariableFromBlock(block, name) {
+  if (!block) return undefined;
+  const re = new RegExp(`<variable\\s+name="${name}"\\s+value="([^"]*)"\\s*/?>`, 'i');
+  const match = block.match(re);
+  return match ? match[1] : undefined;
+}
+
+function getPreference(configXmlContent, name) {
+  const pluginBlock = getPluginBlock(configXmlContent, PLUGIN_ID);
+  const pluginVar = getVariableFromBlock(pluginBlock, name);
+  return pluginVar !== undefined ? pluginVar : getGlobalPreference(configXmlContent, name);
 }
 
 function normalizeDomain(value) {
