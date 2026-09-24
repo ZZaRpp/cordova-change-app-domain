@@ -17,10 +17,11 @@
     </engines>
 
 
-    <param  name="CUSTOM_DOMAIN" value="dev-mijn-hollandzorg.com" />
-    <param  name="BUILTIN_DOMAIN" value="salland-dev.outsystems.app" />
-    <param  name="KEEP_BUILTIN_DOMAIN_ACCESS" value="true" />
-    <param  name="PATCH_WWW_FILES" value="true" />
+    <preference name="CUSTOM_DOMAIN" default="" />
+    <preference name="BUILTIN_DOMAIN" default="" />
+    <preference name="KEEP_BUILTIN_DOMAIN_ACCESS" default="true" />
+    <preference name="PATCH_WWW_FILES" default="true" />
+
 
     <hook type="before_prepare" src="hooks/setCustomDomain.js" />
 </plugin>
